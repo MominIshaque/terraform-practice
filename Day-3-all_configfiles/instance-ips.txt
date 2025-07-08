@@ -1,0 +1,4 @@
+private_ip = "172.31.2.243"
+public_ip = "3.16.217.139"
+
+#terraform output > instance-ips.txt
