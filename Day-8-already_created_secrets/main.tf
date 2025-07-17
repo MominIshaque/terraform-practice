@@ -30,18 +30,6 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   }
 }
 
-# Store credentials in Secrets Manager
-resource "aws_secretsmanager_secret" "rds_secret" {
-  name = "rds-credentials"
-}
-
-resource "aws_secretsmanager_secret_version" "rds_secret_version" {
-  secret_id = aws_secretsmanager_secret.rds_secret.id
-  secret_string = jsonencode({
-    username = var.db_username
-    password = var.db_password
-  })
-}
 
 # RDS Instance
 resource "aws_db_instance" "rds" {
@@ -52,13 +40,21 @@ resource "aws_db_instance" "rds" {
   instance_class         = var.db_instance_class
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  username               = var.db_username
-  password               = var.db_password
+  username               = local.db_creds.username
+  password               = local.db_creds.password
   db_name                = var.db_name
   skip_final_snapshot    = true
   publicly_accessible    = false
   multi_az               = true
   storage_encrypted      = true
+}
+
+data "aws_secretsmanager_secret_version" "rds_secret" {
+  secret_id = "arn:aws:secretsmanager:us-east-2:209479302876:secret:rdsuserpass-UQPZkQ"
+}
+
+locals {
+  db_creds = jsondecode(data.aws_secretsmanager_secret_version.rds_secret.secret_string)
 }
 
 # Security Group

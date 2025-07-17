@@ -1,0 +1,5 @@
+ami_id        = "ami-0eb9d6fc9fab44d24"
+instance_type = "t2.micro"
+key           = "prodkey"
+az            = "us-east-2a"
+name          = "momin_instance"

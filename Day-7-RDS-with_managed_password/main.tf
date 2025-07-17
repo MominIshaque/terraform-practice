@@ -30,35 +30,30 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   }
 }
 
-# Store credentials in Secrets Manager
-resource "aws_secretsmanager_secret" "rds_secret" {
-  name = "rds-credentials"
-}
-
-resource "aws_secretsmanager_secret_version" "rds_secret_version" {
-  secret_id = aws_secretsmanager_secret.rds_secret.id
-  secret_string = jsonencode({
-    username = var.db_username
-    password = var.db_password
-  })
-}
 
 # RDS Instance
 resource "aws_db_instance" "rds" {
-  identifier             = var.db_instance_identifier
-  allocated_storage      = 20
-  engine                 = var.db_engine
-  engine_version         = var.db_engine_version
-  instance_class         = var.db_instance_class
-  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
-  vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  username               = var.db_username
-  password               = var.db_password
-  db_name                = var.db_name
-  skip_final_snapshot    = true
-  publicly_accessible    = false
-  multi_az               = true
-  storage_encrypted      = true
+  identifier                  = var.db_instance_identifier
+  allocated_storage           = 20
+  engine                      = var.db_engine
+  engine_version              = var.db_engine_version
+  instance_class              = var.db_instance_class
+  db_subnet_group_name        = aws_db_subnet_group.db_subnet_group.name
+  vpc_security_group_ids      = [aws_security_group.rds_sg.id]
+  username                    = var.db_username
+  manage_master_user_password = true #rds and secret manager manage this password
+  #password               = var.db_password
+  db_name             = var.db_name
+  skip_final_snapshot = true
+  publicly_accessible = false
+  multi_az            = true
+  storage_encrypted   = true
+}
+
+data "aws_secretsmanager_secret_version" "rds_password" {
+  secret_id = aws_db_instance.rds.master_user_secret[0].secret_arn
+
+  depends_on = [aws_db_instance.rds]
 }
 
 # Security Group

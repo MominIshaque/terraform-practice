@@ -11,8 +11,6 @@ variable "subnet_cidrs" {
   default = [""]
 }
 
-variable "db_username" {}
-variable "db_password" {}
 
 variable "db_instance_identifier" {
   default = ""
