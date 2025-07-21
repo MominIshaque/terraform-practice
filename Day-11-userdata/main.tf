@@ -60,7 +60,7 @@ data "aws_ami" "latest" {
 resource "aws_instance" "web" {
   ami                    = data.aws_ami.latest.id
   instance_type          = "t2.micro"
-  #vpc_security_group_ids = [aws_security_group.web_sg.id]
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
   user_data              = file("shelscript.sh") # Ensure this file exists in same dir
 
   tags = {
