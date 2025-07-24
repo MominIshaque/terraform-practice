@@ -7,3 +7,5 @@ resource "aws_instance" "name" {
 
   
 }
+# terraform import [options] <resource_address> <resource_id>
+# terraform import aws_instance.example i-0123456789abcdef0
